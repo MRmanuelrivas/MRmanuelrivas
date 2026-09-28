@@ -8,9 +8,8 @@
 <meta property="og:title" content="Manuel Rivas">
 <meta property="og:description" content="Diseño UX/UI, páginas web y contenido con IA. Desliza la tarjeta para entrar.">
 <meta property="og:type" content="website">
-<!-- VISTA PREVIA EN WHATSAPP: cambia TU-USUARIO y TU-REPOSITORIO por los tuyos (ver README) -->
-<meta property="og:url" content="https://TU-USUARIO.github.io/TU-REPOSITORIO/">
-<meta property="og:image" content="https://TU-USUARIO.github.io/TU-REPOSITORIO/og-tarjeta.png">
+<meta property="og:url" content="https://mrmanuelrivas.github.io/MRmanuelrivas/">
+<meta property="og:image" content="https://mrmanuelrivas.github.io/MRmanuelrivas/og-tarjeta.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
@@ -20,6 +19,11 @@
 <script src="qrcode.js" defer></script>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Manuel Rivas">
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -164,6 +168,15 @@ body{
   background:rgba(15,20,36,.55); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
 }
 .back-btn svg{ width:18px; height:18px; }
+.lang{ display:inline-flex; gap:2px; padding:4px; border-radius:99px; border:1px solid rgba(255,255,255,.18);
+  background:rgba(15,20,36,.55); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); }
+.lang button{ font:inherit; font-size:13px; font-weight:700; letter-spacing:.02em; min-width:46px; min-height:36px; border-radius:99px;
+  border:0; background:none; color:#AEB5C9; cursor:pointer; transition:color .2s, background .2s; }
+.lang button[aria-pressed="true"]{ background:var(--grad); color:#fff; box-shadow:0 4px 14px rgba(90,43,200,.4); }
+.lang button:focus-visible{ outline:2px solid var(--blue); outline-offset:2px; }
+.backwrap{ margin-top:48px; }
+.btn-back{ width:100%; color:#fff; background:rgba(255,255,255,.06); border:1.5px solid rgba(255,255,255,.18); }
+.btn-back:hover{ background:rgba(255,255,255,.1); }
 .hero{ margin-top:48px; }
 .hero h1{ font-family:"Syne","Manrope",system-ui,sans-serif; font-weight:800; font-size:clamp(40px,12vw,64px); line-height:.98; letter-spacing:-.02em; margin:0; }
 .hero p{ margin:16px 0 0; font-size:17px; line-height:1.55; color:#C3C9DA; max-width:34ch; }
@@ -335,10 +348,10 @@ body{
       </div>
       <div class="who">
         <p class="name">Manuel Rivas</p>
-        <p class="line">Diseño UX/UI y contenido con IA</p>
+        <p class="line" data-i18n="cardLine">Diseño UX/UI y contenido con IA</p>
         <div class="swipe" id="swipe" aria-hidden="true">
           <div class="knob" id="knob"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></div>
-          <span>Desliza para entrar</span>
+          <span data-i18n="swipe">Desliza para entrar</span>
         </div>
       </div>
       <div class="glare" aria-hidden="true"></div>
@@ -353,53 +366,53 @@ body{
   <div class="wrap">
     <div class="topbar">
       <svg class="mark" aria-hidden="true"><use href="#mrLight"/></svg>
-      <button class="back-btn" id="backBtn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
-        Tarjeta
-      </button>
+      <div class="lang" role="group" aria-label="Idioma / Sprache">
+        <button type="button" data-lang="de" aria-pressed="false" lang="de">DE</button>
+        <button type="button" data-lang="es" aria-pressed="true" lang="es">ES</button>
+      </div>
     </div>
 
     <header class="hero">
       <h1 class="rise">Manuel Rivas</h1>
-      <p class="rise">Diseño interfaces, páginas web y contenido con IA para marcas que quieren verse y funcionar mejor.</p>
+      <p class="rise" data-i18n="heroP">Diseño interfaces, páginas web y contenido con IA para marcas que quieren verse y funcionar mejor.</p>
       <div class="cta rise">
         <div class="glow">
         <a class="btn btn-primary" href="https://wa.me/4915561638412" target="_blank" rel="noopener">
           <svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.15l-.3-.18-3 .78.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.25-.12-1.47-.72-1.7-.8-.23-.09-.4-.13-.56.12-.17.25-.64.8-.79.97-.14.16-.29.18-.54.06-.25-.12-1.05-.39-2-1.23-.74-.66-1.24-1.47-1.38-1.72-.15-.25-.02-.38.1-.5.12-.12.25-.29.38-.44.12-.14.16-.25.25-.41.08-.17.04-.31-.02-.44-.07-.12-.56-1.35-.77-1.85-.2-.48-.4-.42-.56-.43h-.48a.92.92 0 0 0-.66.31c-.23.25-.87.85-.87 2.07 0 1.22.89 2.4 1.01 2.57.13.16 1.75 2.67 4.23 3.74.59.26 1.05.41 1.41.52.6.19 1.13.16 1.56.1.47-.07 1.47-.6 1.68-1.18.2-.58.2-1.08.14-1.18-.06-.1-.23-.17-.48-.29z"/></svg>
-          Escríbeme por WhatsApp
+          <span data-i18n="waBtn">Escríbeme por WhatsApp</span>
         </a>
         </div>
         <div class="tools">
           <div class="glow"><a class="tile" id="saveContact" download="Manuel-Rivas.vcf">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="8" r="4"/><path d="M3 20c.8-3.6 3.6-5.5 7-5.5 1.3 0 2.5.3 3.5.8M19 14v6M16 17h6"/></svg>
-            Guardar contacto</a></div>
+            <span data-i18n="save">Guardar contacto</span></a></div>
           <div class="glow"><button class="tile" id="shareBtn" type="button">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 8l5-5 5 5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>
-            Compartir</button></div>
+            <span data-i18n="share">Compartir</span></button></div>
           <div class="glow"><button class="tile" id="qrBtn" type="button">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 17h4v4h-4"/></svg>
-            Código QR</button></div>
+            <span data-i18n="qr">Código QR</span></button></div>
           <div class="glow"><a class="tile" href="https://www.google.com/maps/dir/?api=1&amp;destination=Hochschulstra%C3%9Fe%2028%2C%2001069%20Dresden" target="_blank" rel="noopener">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>
-            Cómo llegar</a></div>
+            <span data-i18n="route">Cómo llegar</span></a></div>
         </div>
       </div>
     </header>
 
     <section class="section rise">
-      <h2>Qué hago</h2>
-      <p class="sub">Diseño y tecnología al servicio de tu marca.</p>
+      <h2 data-i18n="whatTitle">Qué hago</h2>
+      <p class="sub" data-i18n="whatSub">Diseño y tecnología al servicio de tu marca.</p>
       <ul class="services">
-        <li><b>Diseño UX/UI</b><span>Interfaces claras para apps y webs, del boceto al prototipo que se puede probar.</span></li>
-        <li><b>Páginas web</b><span>Sitios rápidos y a medida que convierten visitas en clientes.</span></li>
-        <li><b>Contenido con IA</b><span>Imágenes, vídeos y textos para redes, creados y afinados con inteligencia artificial.</span></li>
-        <li><b>Marketing digital</b><span>Estrategia en redes para atraer a tu público y mantenerlo cerca.</span></li>
+        <li><b data-i18n="s1t">Diseño UX/UI</b><span data-i18n="s1d">Interfaces claras para apps y webs, del boceto al prototipo que se puede probar.</span></li>
+        <li><b data-i18n="s2t">Páginas web</b><span data-i18n="s2d">Sitios rápidos y a medida que convierten visitas en clientes.</span></li>
+        <li><b data-i18n="s3t">Contenido con IA</b><span data-i18n="s3d">Imágenes, vídeos y textos para redes, creados y afinados con inteligencia artificial.</span></li>
+        <li><b data-i18n="s4t">Marketing digital</b><span data-i18n="s4d">Estrategia en redes para atraer a tu público y mantenerlo cerca.</span></li>
       </ul>
     </section>
 
     <section class="section rise">
-      <h2>Encuéntrame</h2>
-      <p class="sub">Elige el canal que prefieras.</p>
+      <h2 data-i18n="findTitle">Encuéntrame</h2>
+      <p class="sub" data-i18n="findSub">Elige el canal que prefieras.</p>
       <ul class="links">
         <li><a href="https://instagram.com/manue_rivas" target="_blank" rel="noopener">
           <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="#fff" stroke="none"/></svg></span>
@@ -407,7 +420,7 @@ body{
           <svg class="go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></a></li>
         <li><a href="https://manuel-rivas-ecosistema.pages.dev" target="_blank" rel="noopener">
           <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/></svg></span>
-          <span><b>Sitio web</b><small>Proyectos y servicios</small></span>
+          <span><b data-i18n="web">Sitio web</b><small data-i18n="webSub">Proyectos y servicios</small></span>
           <svg class="go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></a></li>
         <li><a href="https://www.linkedin.com/in/manuel-rivas-09913736a" target="_blank" rel="noopener">
           <span class="ic"><svg viewBox="0 0 24 24" fill="#fff"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9.5h4V21H3zM9.5 9.5h3.8v1.6h.06c.53-1 1.83-2.06 3.77-2.06 4.03 0 4.77 2.65 4.77 6.1V21h-4v-5.2c0-1.24-.02-2.84-1.73-2.84-1.73 0-2 1.35-2 2.75V21h-4z"/></svg></span>
@@ -420,9 +433,16 @@ body{
       </ul>
     </section>
 
+    <div class="backwrap rise">
+      <button class="btn btn-back" id="backBtn" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+        <span data-i18n="back">Volver a la tarjeta</span>
+      </button>
+    </div>
+
     <footer class="foot rise">
       <svg aria-hidden="true"><use href="#mrLight"/></svg>
-      <span>Manuel Rivas, diseño y contenido con IA desde Alemania</span>
+      <span data-i18n="foot">Manuel Rivas, diseño y contenido con IA desde Alemania</span>
     </footer>
   </div>
 </div>
@@ -431,18 +451,18 @@ body{
   <div class="scrim" data-close></div>
   <div class="panel">
     <div class="grab"></div>
-    <div class="phead"><h3 id="shareTitle">Compartir tarjeta</h3><button class="x" type="button" data-close aria-label="Cerrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
-    <p class="lead">Elige dónde quieres enviarla.</p>
+    <div class="phead"><h3 id="shareTitle" data-i18n="shareTitle">Compartir tarjeta</h3><button class="x" type="button" data-close aria-label="Cerrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <p class="lead" data-i18n="shareLead">Elige dónde quieres enviarla.</p>
     <div class="apps">
       <a class="app" data-share="whatsapp" target="_blank" rel="noopener"><i style="background:#25D366"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm4.5 12.1c-.25-.12-1.47-.72-1.7-.8-.23-.09-.4-.13-.56.12-.17.25-.64.8-.79.97-.14.16-.29.18-.54.06-.25-.12-1.05-.39-2-1.23-.74-.66-1.24-1.47-1.38-1.72-.15-.25-.02-.38.1-.5.12-.12.25-.29.38-.44.12-.14.16-.25.25-.41.08-.17.04-.31-.02-.44-.07-.12-.56-1.35-.77-1.85-.2-.48-.4-.42-.56-.43h-.48a.92.92 0 0 0-.66.31c-.23.25-.87.85-.87 2.07 0 1.22.89 2.4 1.01 2.57.13.16 1.75 2.67 4.23 3.74 2.07.9 2.49.72 2.94.68.47-.05 1.47-.6 1.68-1.18.2-.58.2-1.08.14-1.18-.06-.1-.23-.17-.48-.29z"/></svg></i>WhatsApp</a>
       <button class="app" type="button" data-share="instagram"><i style="background:radial-gradient(circle at 30% 110%,#FFD676 0%,#F9563C 35%,#D6249F 60%,#285AEB 100%)"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="#fff" stroke="none"/></svg></i>Instagram</button>
       <a class="app" data-share="telegram" target="_blank" rel="noopener"><i style="background:#27A7E7"><svg viewBox="0 0 24 24" fill="#fff"><path d="M21.5 4.3 18.3 19.6c-.24 1.07-.87 1.33-1.77.83l-4.9-3.6-2.36 2.27c-.26.26-.48.48-.98.48l.35-4.98 9.07-8.2c.4-.35-.08-.55-.61-.2L5.9 13.26 1.07 11.75c-1.05-.33-1.07-1.05.22-1.55L20.2 2.9c.88-.33 1.64.2 1.3 1.4z"/></svg></i>Telegram</a>
-      <a class="app" data-share="email"><i style="background:#5A2BC8"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3.5 6.5 12 13l8.5-6.5"/></svg></i>Correo</a>
+      <a class="app" data-share="email"><i style="background:#5A2BC8"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3.5 6.5 12 13l8.5-6.5"/></svg></i><span data-i18n="email">Correo</span></a>
       <a class="app" data-share="linkedin" target="_blank" rel="noopener"><i style="background:#0A66C2"><svg viewBox="0 0 24 24" fill="#fff"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9.5h4V21H3zM9.5 9.5h3.8v1.6h.06c.53-1 1.83-2.06 3.77-2.06 4.03 0 4.77 2.65 4.77 6.1V21h-4v-5.2c0-1.24-.02-2.84-1.73-2.84-1.73 0-2 1.35-2 2.75V21h-4z"/></svg></i>LinkedIn</a>
       <a class="app" data-share="facebook" target="_blank" rel="noopener"><i style="background:#1877F2"><svg viewBox="0 0 24 24" fill="#fff"><path d="M13.5 21v-7.5h2.6l.4-3h-3V8.6c0-.87.25-1.46 1.5-1.46h1.6V4.46A21 21 0 0 0 14.3 4.3c-2.3 0-3.8 1.4-3.8 3.9v2.3H8v3h2.5V21z"/></svg></i>Facebook</a>
       <a class="app" data-share="sms"><i style="background:#34C759"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H9l-5 4V6a1 1 0 0 1 1-1z"/></svg></i>SMS</a>
-      <button class="app" type="button" data-share="copy"><i style="background:#2F3852"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4 4 0 0 0 5.66 0l3-3a4 4 0 0 0-5.66-5.66l-1 1"/><path d="M14 10a4 4 0 0 0-5.66 0l-3 3a4 4 0 0 0 5.66 5.66l1-1"/></svg></i>Copiar enlace</button>
-      <button class="app" type="button" data-share="more" id="moreShare" hidden><i style="background:linear-gradient(135deg,#2D8CF0,#5A2BC8,#FF5052)"><svg viewBox="0 0 24 24" fill="#fff"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></i>Más apps</button>
+      <button class="app" type="button" data-share="copy"><i style="background:#2F3852"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4 4 0 0 0 5.66 0l3-3a4 4 0 0 0-5.66-5.66l-1 1"/><path d="M14 10a4 4 0 0 0-5.66 0l-3 3a4 4 0 0 0 5.66 5.66l1-1"/></svg></i><span data-i18n="copy">Copiar enlace</span></button>
+      <button class="app" type="button" data-share="more" id="moreShare" hidden><i style="background:linear-gradient(135deg,#2D8CF0,#5A2BC8,#FF5052)"><svg viewBox="0 0 24 24" fill="#fff"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></i><span data-i18n="more">Más apps</span></button>
     </div>
   </div>
 </div>
@@ -451,8 +471,8 @@ body{
   <div class="scrim" data-close></div>
   <div class="panel">
     <div class="grab"></div>
-    <div class="phead"><h3 id="qrTitle">Escanea mi tarjeta</h3><button class="x" type="button" data-close aria-label="Cerrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
-    <p class="lead">Apunta la cámara del otro teléfono a este código.</p>
+    <div class="phead"><h3 id="qrTitle" data-i18n="qrTitle">Escanea mi tarjeta</h3><button class="x" type="button" data-close aria-label="Cerrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <p class="lead" data-i18n="qrLead">Apunta la cámara del otro teléfono a este código.</p>
     <div class="qrbox"><div id="qrCode"></div><div class="center"><svg aria-hidden="true" viewBox="140 250 740 475"><path fill="#1E2638" d="M155 265 L392 493 L512 352 L612 352 L398 622 L235 457 L235 707 L155 707 Z"/><path fill="#1E2638" d="M512 572 L587 488 L587 707 L512 707 Z"/><path fill="url(#mrGrad)" d="M512 352 L567 280 L712 280 C800 280 858 342 858 418 C858 492 810 548 750 556 L866 707 L765 707 L600 488 L712 488 C752 488 780 458 780 420 C780 382 752 352 712 352 Z"/></svg></div></div>
     <p class="qrmsg" id="qrMsg"></p>
   </div>
@@ -470,14 +490,75 @@ body{
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const touch = matchMedia('(pointer: coarse)').matches;
 
-  // vCard
-  const vcard = ['BEGIN:VCARD','VERSION:3.0','N:Rivas;Manuel;;;','FN:Manuel Rivas',
-    'TITLE:Diseño UX/UI y contenido con IA','TEL;TYPE=CELL:+4915561638412',
-    'URL:https://manuel-rivas-ecosistema.pages.dev',
-    'X-SOCIALPROFILE;TYPE=instagram:https://instagram.com/manue_rivas',
-    'X-SOCIALPROFILE;TYPE=linkedin:https://www.linkedin.com/in/manuel-rivas-09913736a',
-    'END:VCARD'].join('\r\n');
-  document.getElementById('saveContact').href = 'data:text/vcard;charset=utf-8,' + encodeURIComponent(vcard);
+  // ---- idiomas ----
+  const I18N = {
+    es: {
+      cardLine:'Diseño UX/UI y contenido con IA', swipe:'Desliza para entrar',
+      hintTouch:'Desliza hacia la derecha para entrar', hintMouse:'Arrastra el botón o haz clic para entrar',
+      cardAria:'Tarjeta de Manuel Rivas. Desliza o pulsa Enter para entrar.',
+      heroP:'Diseño interfaces, páginas web y contenido con IA para marcas que quieren verse y funcionar mejor.',
+      waBtn:'Escríbeme por WhatsApp', save:'Guardar contacto', share:'Compartir', qr:'Código QR', route:'Cómo llegar',
+      whatTitle:'Qué hago', whatSub:'Diseño y tecnología al servicio de tu marca.',
+      s1t:'Diseño UX/UI', s1d:'Interfaces claras para apps y webs, del boceto al prototipo que se puede probar.',
+      s2t:'Páginas web', s2d:'Sitios rápidos y a medida que convierten visitas en clientes.',
+      s3t:'Contenido con IA', s3d:'Imágenes, vídeos y textos para redes, creados y afinados con inteligencia artificial.',
+      s4t:'Marketing digital', s4d:'Estrategia en redes para atraer a tu público y mantenerlo cerca.',
+      findTitle:'Encuéntrame', findSub:'Elige el canal que prefieras.', web:'Sitio web', webSub:'Proyectos y servicios',
+      back:'Volver a la tarjeta', foot:'Manuel Rivas, diseño y contenido con IA desde Alemania',
+      shareTitle:'Compartir tarjeta', shareLead:'Elige dónde quieres enviarla.', email:'Correo', copy:'Copiar enlace', more:'Más apps',
+      qrTitle:'Escanea mi tarjeta', qrLead:'Apunta la cámara del otro teléfono a este código.',
+      close:'Cerrar', copied:'Enlace copiado', igCopied:'Enlace copiado: pégalo en tu chat de Instagram', copyPrompt:'Copia este enlace:',
+      qrFail:'No se pudo generar el código QR. Comprueba tu conexión e inténtalo de nuevo.', qrAria:'Código QR de la tarjeta',
+      shareText:'Te comparto mi tarjeta: Manuel Rivas, diseño UX/UI, páginas web y contenido con IA.',
+      mailSubject:'Tarjeta de Manuel Rivas', vTitle:'Diseño UX/UI y contenido con IA'
+    },
+    de: {
+      cardLine:'UX/UI-Design und KI-Content', swipe:'Zum Öffnen wischen',
+      hintTouch:'Nach rechts wischen, um die Karte zu öffnen', hintMouse:'Knopf ziehen oder klicken, um die Karte zu öffnen',
+      cardAria:'Visitenkarte von Manuel Rivas. Wischen oder Enter drücken, um sie zu öffnen.',
+      heroP:'Ich gestalte Interfaces, Webseiten und KI-Content für Marken, die besser aussehen und besser funktionieren wollen.',
+      waBtn:'Schreib mir auf WhatsApp', save:'Kontakt speichern', share:'Teilen', qr:'QR-Code', route:'Anfahrt',
+      whatTitle:'Was ich mache', whatSub:'Design und Technologie im Dienst deiner Marke.',
+      s1t:'UX/UI-Design', s1d:'Klare Interfaces für Apps und Webseiten, von der Skizze bis zum testbaren Prototyp.',
+      s2t:'Webseiten', s2d:'Schnelle, maßgeschneiderte Seiten, die Besucher zu Kunden machen.',
+      s3t:'KI-Content', s3d:'Bilder, Videos und Texte für Social Media, mit künstlicher Intelligenz erstellt und verfeinert.',
+      s4t:'Digitales Marketing', s4d:'Social-Media-Strategie, die deine Zielgruppe anzieht und bindet.',
+      findTitle:'Finde mich', findSub:'Wähle deinen Lieblingskanal.', web:'Webseite', webSub:'Projekte und Leistungen',
+      back:'Zurück zur Karte', foot:'Manuel Rivas, Design und KI-Content aus Deutschland',
+      shareTitle:'Karte teilen', shareLead:'Wähle, wohin du sie senden möchtest.', email:'E-Mail', copy:'Link kopieren', more:'Weitere Apps',
+      qrTitle:'Scanne meine Karte', qrLead:'Richte die Kamera des anderen Handys auf diesen Code.',
+      close:'Schließen', copied:'Link kopiert', igCopied:'Link kopiert: füge ihn in deinen Instagram-Chat ein', copyPrompt:'Kopiere diesen Link:',
+      qrFail:'Der QR-Code konnte nicht erstellt werden. Prüfe deine Verbindung und versuche es erneut.', qrAria:'QR-Code der Visitenkarte',
+      shareText:'Hier ist meine Visitenkarte: Manuel Rivas, UX/UI-Design, Webseiten und KI-Content.',
+      mailSubject:'Visitenkarte von Manuel Rivas', vTitle:'UX/UI-Design und KI-Content'
+    }
+  };
+  let lang = 'es';
+  try { lang = localStorage.getItem('mr-lang') || ''; } catch(_){}
+  if (!I18N[lang]) lang = (navigator.language || '').toLowerCase().startsWith('de') ? 'de' : 'es';
+  const T = k => I18N[lang][k];
+  function buildVcard(){
+    const v = ['BEGIN:VCARD','VERSION:3.0','N:Rivas;Manuel;;;','FN:Manuel Rivas',
+      'TITLE:' + T('vTitle'),'TEL;TYPE=CELL:+4915561638412',
+      'URL:https://manuel-rivas-ecosistema.pages.dev',
+      'X-SOCIALPROFILE;TYPE=instagram:https://instagram.com/manue_rivas',
+      'X-SOCIALPROFILE;TYPE=linkedin:https://www.linkedin.com/in/manuel-rivas-09913736a',
+      'END:VCARD'].join('\r\n');
+    document.getElementById('saveContact').href = 'data:text/vcard;charset=utf-8,' + encodeURIComponent(v);
+  }
+  function applyLang(next){
+    if (next) { lang = next; try { localStorage.setItem('mr-lang', lang); } catch(_){} }
+    document.documentElement.lang = lang;
+    document.querySelectorAll('[data-i18n]').forEach(el => { const v = T(el.dataset.i18n); if (v) el.textContent = v; });
+    document.querySelectorAll('.lang button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.lang === lang)));
+    document.querySelectorAll('.panel .x').forEach(b => b.setAttribute('aria-label', T('close')));
+    card.setAttribute('aria-label', T('cardAria'));
+    hint.textContent = touch ? T('hintTouch') : T('hintMouse');
+    buildVcard();
+    const svgQR = document.querySelector('#qrCode svg'); if (svgQR) svgQR.setAttribute('aria-label', T('qrAria'));
+  }
+  document.querySelectorAll('.lang button').forEach(b => b.addEventListener('click', () => applyLang(b.dataset.lang)));
+
 
   // luces giratorias: marca los botones y añade el resplandor sincronizado
   document.querySelectorAll('.btn-primary, .tile, .links a').forEach(el => el.classList.add('ringed'));
@@ -491,7 +572,6 @@ body{
   const toast = document.getElementById('toast');
   function say(msg){ toast.textContent = msg; toast.classList.add('show'); clearTimeout(say.t); say.t = setTimeout(() => toast.classList.remove('show'), 2200); }
   const cardUrl = () => location.href.split('#')[0];
-  const shareText = 'Te comparto mi tarjeta: Manuel Rivas, diseño UX/UI, páginas web y contenido con IA.';
   let lastFocus = null;
   function openSheet(id){
     const sh = document.getElementById(id); lastFocus = document.activeElement;
@@ -507,15 +587,15 @@ body{
 
   async function copyLink(msg){
     const url = cardUrl();
-    try { await navigator.clipboard.writeText(url); say(msg || 'Enlace copiado'); }
-    catch(_){ window.prompt('Copia este enlace:', url); }
+    try { await navigator.clipboard.writeText(url); say(msg || T('copied')); }
+    catch(_){ window.prompt(T('copyPrompt'), url); }
   }
   function prepareShareLinks(){
-    const u = encodeURIComponent(cardUrl()), t = encodeURIComponent(shareText), both = encodeURIComponent(shareText + ' ' + cardUrl());
+    const shareText = T('shareText'), u = encodeURIComponent(cardUrl()), t = encodeURIComponent(shareText), both = encodeURIComponent(shareText + ' ' + cardUrl());
     const set = (k, href) => document.querySelector(`[data-share="${k}"]`).href = href;
     set('whatsapp', 'https://wa.me/?text=' + both);
     set('telegram', 'https://t.me/share/url?url=' + u + '&text=' + t);
-    set('email', 'mailto:?subject=' + encodeURIComponent('Tarjeta de Manuel Rivas') + '&body=' + both);
+    set('email', 'mailto:?subject=' + encodeURIComponent(T('mailSubject')) + '&body=' + both);
     set('linkedin', 'https://www.linkedin.com/sharing/share-offsite/?url=' + u);
     set('facebook', 'https://www.facebook.com/sharer/sharer.php?u=' + u);
     set('sms', 'sms:?&body=' + both);
@@ -526,11 +606,11 @@ body{
   document.querySelector('[data-share="copy"]').addEventListener('click', () => copyLink());
   document.querySelector('[data-share="instagram"]').addEventListener('click', async () => {
     // Instagram no permite compartir enlaces desde la web: se copia el enlace y se abren los mensajes
-    await copyLink('Enlace copiado: pégalo en tu chat de Instagram');
+    await copyLink(T('igCopied'));
     setTimeout(() => window.open('https://www.instagram.com/direct/inbox/', '_blank', 'noopener'), 600);
   });
   more.addEventListener('click', async () => {
-    try { await navigator.share({ title:'Manuel Rivas', text:shareText, url:cardUrl() }); } catch(_){}
+    try { await navigator.share({ title:'Manuel Rivas', text:T('shareText'), url:cardUrl() }); } catch(_){}
   });
 
   // código QR
@@ -539,7 +619,7 @@ body{
     const box = document.getElementById('qrCode'), msg = document.getElementById('qrMsg');
     msg.textContent = cardUrl().replace(/^https?:\/\//, '');
     if (qrDone) return;
-    if (typeof qrcode !== 'function'){ box.innerHTML = ''; msg.textContent = 'No se pudo generar el código QR. Comprueba tu conexión e inténtalo de nuevo.'; return; }
+    if (typeof qrcode !== 'function'){ box.innerHTML = ''; msg.textContent = T('qrFail'); return; }
     const q = qrcode(0, 'H'); q.addData(cardUrl()); q.make();
     const n = q.getModuleCount(), c = n / 2, hole = n * .15;
     let d = '';
@@ -549,13 +629,13 @@ body{
       if (!finder && Math.abs(r + .5 - c) < hole && Math.abs(k + .5 - c) < hole) continue;  // hueco para el logo
       d += finder ? `M${k},${r}h1v1h-1z` : `M${k + .5},${r + .08}a.42.42 0 1 1 0 .84a.42.42 0 1 1 0-.84z`;
     }
-    box.innerHTML = `<svg class="code" viewBox="0 0 ${n} ${n}" role="img" aria-label="Código QR de la tarjeta" shape-rendering="geometricPrecision"><path d="${d}" fill="#1E2638"/></svg>`;
+    box.innerHTML = `<svg class="code" viewBox="0 0 ${n} ${n}" role="img" aria-label="${T('qrAria')}" shape-rendering="geometricPrecision"><path d="${d}" fill="#1E2638"/></svg>`;
     qrDone = true;
   }
   document.getElementById('qrBtn').addEventListener('click', () => { buildQR(); openSheet('qrSheet'); });
 
 
-  hint.textContent = touch ? 'Desliza hacia la derecha para entrar' : 'Arrastra el botón o haz clic para entrar';
+  applyLang();
 
   // estado
   let energy = 0, energyS = 0;
@@ -587,7 +667,7 @@ body{
     if (!fromHistory && location.hash === '#perfil') try { history.back(); } catch(_){}
   }
   document.getElementById('backBtn').addEventListener('click', () => closeProfile());
-  window.addEventListener('popstate', () => { location.hash === '#perfil' ? openProfile(1, true) : closeProfile(true); });
+  window.addEventListener('popstate', () => { if (location.hash !== '#perfil') closeProfile(true); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && isOpen) closeProfile(); });
 
   // ---- gesto ----
@@ -797,9 +877,14 @@ body{
     if (!on) running = false;
   }).observe(profile, { attributes: true, attributeFilter: ['class'] });
 
-  if (location.hash === '#perfil'){ reduceOpen(); }
-  function reduceOpen(){ isOpen = false; openProfile(1, true); }
+  // Siempre se empieza por la tarjeta: si se abre con #perfil (p. ej. un icono guardado
+  // en la pantalla de inicio mientras la página interior estaba abierta), se limpia la dirección.
+  if (location.hash){ try { history.replaceState(null, '', location.pathname + location.search); } catch(_){} }
 })();
+</script>
+<script>
+  // App instalable y disponible sin conexión
+  if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
 </script>
 </body>
 </html>
