@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Manuel Rivas · Tarjeta</title>
+<meta name="description" content="Diseño UX/UI, páginas web y contenido con IA. Desliza la tarjeta para entrar.">
+<meta property="og:title" content="Manuel Rivas">
+<meta property="og:description" content="Diseño UX/UI, páginas web y contenido con IA. Desliza la tarjeta para entrar.">
+<meta property="og:type" content="website">
+<!-- VISTA PREVIA EN WHATSAPP: cambia TU-USUARIO y TU-REPOSITORIO por los tuyos (ver README) -->
+<meta property="og:url" content="https://TU-USUARIO.github.io/TU-REPOSITORIO/">
+<meta property="og:image" content="https://TU-USUARIO.github.io/TU-REPOSITORIO/og-tarjeta.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0F1424">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<script src="qrcode.js" defer></script>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --stage:#0F1424; --stage-2:#161D33;
+  --ink:#1E2638; --ink-deep:#161C2C;
+  --pearl:#F5F6FA; --pearl-2:#E6E9F2;
+  --text-on-dark:#EEF0F7; --muted-on-dark:#9AA3BD;
+  --text-on-light:#1E2638; --muted-on-light:#6B7390;
+  --blue:#2D8CF0; --violet:#5A2BC8; --coral:#FF5052;
+  --grad:linear-gradient(135deg,#2D8CF0 0%,#4A3FDB 38%,#5A2BC8 55%,#E0457F 82%,#FF5052 100%);
+  --ring:conic-gradient(from var(--ang), transparent 0deg 150deg, #2D8CF0 215deg, #5A2BC8 275deg, #E0457F 320deg, #FF5052 350deg, transparent 360deg);
+  --rim:linear-gradient(rgba(255,255,255,.12),rgba(255,255,255,.06));
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --stage:#0F1424; --stage-2:#161D33; } }
+:root[data-theme="dark"]{ --stage:#0F1424; --stage-2:#161D33; }
+:root{ box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px); }
+*,*::before,*::after{ box-sizing:inherit; }
+html{ height:100%; scroll-padding-top:env(safe-area-inset-top,0px); overflow:hidden; overscroll-behavior:none; }
+body{
+  margin:0; height:100%; background:var(--stage); color:var(--text-on-dark);
+  font-family:"Manrope",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  -webkit-font-smoothing:antialiased; overflow:hidden; overscroll-behavior:none;
+  position:fixed; inset:0; width:100%;
+}
+@property --ang{ syntax:'<angle>'; inherits:false; initial-value:0deg; }
+@keyframes spin{ to{ --ang:360deg; } }
+@keyframes breathe{ 0%,100%{ opacity:.15 } 50%{ opacity:.4 } }
+
+/* ============ ESCENA DE LA TARJETA ============ */
+.stage{
+  position:relative; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:26px;
+  background:radial-gradient(120% 80% at 50% 110%, var(--stage-2) 0%, var(--stage) 60%);
+  perspective:1400px; user-select:none; -webkit-user-select:none; overflow:hidden; touch-action:none;
+}
+.halo{ display:none; }
+#aurora{ position:absolute; inset:0; width:100%; height:100%; z-index:0; pointer-events:none; }
+.stage::before{ /* cristal esmerilado: grano + viñeta */
+  content:""; position:absolute; inset:0; z-index:0; pointer-events:none;
+  background:
+    radial-gradient(120% 90% at 50% 45%, rgba(7,10,21,0) 45%, rgba(7,10,21,.6) 100%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.stage > .card, .stage > .hint{ position:relative; z-index:1; }
+.cglow{ /* resplandor de color que proyecta la tarjeta */
+  position:absolute; inset:2% -5% -7%; border-radius:14cqw; pointer-events:none;
+  background:linear-gradient(120deg,#2D8CF0,#5A2BC8,#E0457F,#FF5052,#5A2BC8,#2D8CF0); background-size:300% 300%;
+  display:none;
+}
+@keyframes liquid{ 0%,100%{ background-position:0% 50% } 50%{ background-position:100% 50% } }
+.xhalo{ width:min(460px,110vw); aspect-ratio:1; border-radius:50%;
+  background:var(--grad); filter:blur(90px); opacity:.28; pointer-events:none;
+  transform:translate(calc(var(--hx,0)*1px), calc(var(--hy,0)*1px));
+}
+.card{
+  --x:0px; --ry:0deg; --rz:0deg; --tx:0deg; --ty:0deg; --op:1;
+  position:relative; width:min(340px, 86vw, calc(72dvh * .63)); aspect-ratio:.63;
+  transform-style:preserve-3d; opacity:var(--op);
+  transform:translateX(var(--x)) rotateX(var(--tx)) rotateY(calc(var(--ry) + var(--ty))) rotateZ(var(--rz));
+  touch-action:none; -webkit-touch-callout:none; outline:none; container-type:inline-size;
+}
+.card{ cursor:default; }
+.face{
+  position:absolute; inset:0; border-radius:6.5cqw; overflow:hidden;
+  box-shadow:0 40px 80px rgba(4,7,18,.6), 0 2px 0 rgba(255,255,255,.04) inset;
+}
+.card:focus-visible .face{ box-shadow:0 0 0 3px var(--blue), 0 40px 80px rgba(4,7,18,.6); }
+.face::after{
+  content:""; position:absolute; inset:0; pointer-events:none; opacity:.07; mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.glare{
+  position:absolute; inset:-20%; pointer-events:none; mix-blend-mode:soft-light;
+  background:radial-gradient(circle at var(--gx,50%) var(--gy,30%), rgba(255,255,255,.95) 0%, rgba(255,255,255,0) 42%);
+  opacity:var(--go,.55);
+}
+.front{
+  box-shadow:0 40px 80px rgba(4,7,18,.55), -18px -8px 70px rgba(45,140,240,.38), 20px 24px 80px rgba(255,80,82,.34), 0 0 90px rgba(90,43,200,.4);
+  background:linear-gradient(160deg,#FFFFFF 0%,var(--pearl) 45%,var(--pearl-2) 100%);
+  color:var(--text-on-light); display:flex; flex-direction:column; padding:8cqw 8cqw 7cqw;
+}
+.front .foil{
+  position:absolute; inset:0; pointer-events:none; mix-blend-mode:color; opacity:.16;
+  background:linear-gradient(115deg, transparent 20%, #2D8CF0 38%, #5A2BC8 50%, #FF5052 62%, transparent 80%);
+  background-size:260% 100%; background-position:var(--fx,50%) 0;
+}
+.front .logo{ flex:1; display:flex; align-items:center; justify-content:center; }
+.front .logo svg{ width:100%; height:auto; overflow:visible; }
+.front .name{ font-family:"Syne","Manrope",system-ui,sans-serif; font-weight:700; font-size:7.6cqw; letter-spacing:-.01em; margin:0; }
+.front .line{ margin:1.6cqw 0 0; font-size:3.9cqw; color:var(--muted-on-light); font-weight:500; }
+.swipe{
+  margin-top:6cqw; height:11cqw; border-radius:99px; background:rgba(30,38,56,.06);
+  display:flex; align-items:center; padding:0 1.6cqw; gap:3cqw; position:relative; overflow:hidden;
+  font-size:3.5cqw; font-weight:600; color:var(--ink);
+}
+.swipe .knob{
+  width:7.8cqw; height:7.8cqw; border-radius:50%; background:var(--grad); flex:none; position:relative; z-index:1;
+  display:grid; place-items:center; box-shadow:0 4px 14px rgba(90,43,200,.35);
+  animation:knob 2.8s cubic-bezier(.6,0,.3,1) infinite;
+}
+.swipe .knob.held{ animation:none; }
+.swipe::before{ content:""; position:absolute; left:0; top:0; bottom:0; border-radius:99px; pointer-events:none;
+  width:calc(var(--kx,0px) + 11cqw); background:linear-gradient(90deg, rgba(45,140,240,.18), rgba(90,43,200,.28), rgba(255,80,82,.3));
+  opacity:var(--fo,0); }
+.swipe span{ transition:opacity .2s; }
+.swipe .knob svg{ width:3.6cqw; height:3.6cqw; }
+.swipe span{ background:linear-gradient(90deg,var(--ink) 0%,var(--ink) 40%,#9AA3BD 50%,var(--ink) 60%,var(--ink) 100%);
+  background-size:300% 100%; -webkit-background-clip:text; background-clip:text; color:transparent; animation:shimmer 2.8s linear infinite; }
+@keyframes knob{ 0%,15%{transform:translateX(0)} 45%,60%{transform:translateX(8cqw)} 90%,100%{transform:translateX(0)} }
+@keyframes shimmer{ from{background-position:100% 0} to{background-position:-100% 0} }
+.draw path{ stroke-width:5; stroke-linejoin:round; fill-opacity:0; stroke-dasharray:1; stroke-dashoffset:1;
+  animation:stroke 1.5s cubic-bezier(.65,0,.35,1) forwards, fill .7s ease forwards; }
+.draw .p-m{ stroke:var(--ink); animation-delay:.25s,1.25s; }
+.draw .p-s{ stroke:var(--ink); animation-delay:.55s,1.35s; }
+.draw .p-r{ stroke:url(#mrGrad); animation-delay:.75s,1.55s; }
+@keyframes stroke{ to{ stroke-dashoffset:0 } }
+@keyframes fill{ to{ fill-opacity:1; stroke-opacity:0 } }
+.hint{ font-size:13px; color:rgba(238,240,247,.72); font-weight:500; min-height:1.3em; text-align:center; padding:0 24px; margin:0; }
+
+/* ============ PÁGINA DE PERFIL ============ */
+.profile{
+  position:fixed; inset:0; z-index:10; overflow-y:auto; overscroll-behavior:contain; -webkit-overflow-scrolling:touch;
+  background:linear-gradient(180deg,#1B2236 0%,var(--ink-deep) 55%,var(--stage) 100%);
+  clip-path:circle(0% at var(--cx,50%) var(--cy,50%)); visibility:hidden;
+  transition:clip-path .9s cubic-bezier(.7,0,.2,1), visibility 0s linear .9s;
+}
+.profile.open{ clip-path:circle(150% at var(--cx,50%) var(--cy,50%)); visibility:visible; transition:clip-path .9s cubic-bezier(.7,0,.2,1), visibility 0s; }
+.profile{ background:#070A14; }
+#void{ position:fixed; inset:0; width:100%; height:100%; z-index:0; pointer-events:none; }
+.profile::after{ /* velo para que el texto respire sobre el vacío */
+  content:""; position:fixed; inset:0; z-index:0; pointer-events:none;
+  background:radial-gradient(90% 55% at 50% 30%, rgba(7,10,20,.45) 0%, rgba(7,10,20,0) 70%);
+}
+.wrap{
+  position:relative; z-index:1; max-width:560px; margin:0 auto;
+  padding:calc(env(safe-area-inset-top,0px) + 28px) 24px calc(env(safe-area-inset-bottom,0px) + 40px);
+}
+.topbar{ display:flex; align-items:center; justify-content:space-between; }
+.topbar .mark{ width:64px; height:auto; }
+.back-btn{
+  font:inherit; font-size:14px; font-weight:700; color:#fff; cursor:pointer; min-height:44px; padding:0 16px 0 12px;
+  display:inline-flex; align-items:center; gap:6px; border-radius:99px; border:1px solid rgba(255,255,255,.18);
+  background:rgba(15,20,36,.55); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+}
+.back-btn svg{ width:18px; height:18px; }
+.hero{ margin-top:48px; }
+.hero h1{ font-family:"Syne","Manrope",system-ui,sans-serif; font-weight:800; font-size:clamp(40px,12vw,64px); line-height:.98; letter-spacing:-.02em; margin:0; }
+.hero p{ margin:16px 0 0; font-size:17px; line-height:1.55; color:#C3C9DA; max-width:34ch; }
+.cta{ display:flex; flex-direction:column; gap:12px; margin-top:28px; }
+.glow{ position:relative; }
+.glow::before{ /* resplandor que gira con el cometa */
+  content:""; position:absolute; inset:-3px; border-radius:19px; z-index:-1; pointer-events:none;
+  background:var(--ring); filter:blur(12px); opacity:.85; animation:spin 6s linear infinite;
+}
+.btn{
+  position:relative; font:inherit; font-size:16px; font-weight:700; min-height:56px; border-radius:16px; padding:0 20px;
+  display:flex; align-items:center; justify-content:center; gap:10px; text-decoration:none; cursor:pointer;
+  border:2px solid transparent; transition:transform .2s;
+}
+.tools{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+.tools .tile{ width:100%; height:100%; }
+.tile{
+  position:relative; font:inherit; color:#fff; cursor:pointer; text-decoration:none; min-height:60px; border-radius:16px;
+  border:2px solid transparent; display:flex; align-items:center; justify-content:flex-start; gap:10px;
+  font-size:14px; font-weight:700; text-align:left; line-height:1.2; padding:8px 14px;
+  background:linear-gradient(rgba(32,40,60,.92),rgba(24,30,48,.92)) padding-box, var(--ring) border-box, var(--rim) border-box;
+  animation:spin 6s linear infinite; transition:transform .2s;
+}
+.tile:active{ transform:scale(.97); }
+.tile svg{ width:22px; height:22px; }
+.tile:focus-visible{ outline:2px solid var(--blue); outline-offset:3px; }
+.toast{
+  position:fixed; left:50%; bottom:calc(env(safe-area-inset-bottom,0px) + 24px); z-index:20; transform:translate(-50%,20px);
+  background:var(--pearl); color:var(--ink); font-weight:700; font-size:14px; padding:12px 18px; border-radius:99px;
+  box-shadow:0 12px 40px rgba(0,0,0,.4); opacity:0; pointer-events:none; transition:opacity .3s, transform .3s;
+}
+.toast.show{ opacity:1; transform:translate(-50%,0); }
+.btn:active{ transform:scale(.98); }
+.btn svg{ width:20px; height:20px; flex:none; }
+.btn-primary{ color:#fff; background:linear-gradient(#262E45,#20283C) padding-box, var(--ring) border-box, var(--rim) border-box; animation:spin 6s linear infinite; }
+.btn:focus-visible, .back-btn:focus-visible, .links a:focus-visible{ outline:2px solid var(--blue); outline-offset:3px; }
+
+.section{ margin-top:56px; }
+.section h2{ font-family:"Syne","Manrope",system-ui,sans-serif; font-size:22px; font-weight:700; margin:0 0 6px; letter-spacing:-.01em; }
+.section .sub{ margin:0 0 20px; color:var(--muted-on-dark); font-size:15px; }
+.services{ list-style:none; margin:0; padding:0; }
+.services li{ padding:18px 0 18px 20px; border-top:1px solid rgba(255,255,255,.1); position:relative; }
+.services li:last-child{ border-bottom:1px solid rgba(255,255,255,.08); }
+.services li::before{ content:""; position:absolute; left:0; top:22px; bottom:22px; width:3px; border-radius:3px; background:var(--grad); }
+.services b{ display:block; font-size:17px; font-weight:700; }
+.services span{ display:block; margin-top:4px; font-size:15px; line-height:1.5; color:#AEB5C9; }
+
+.links{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:10px; }
+.links li{ position:relative; }
+.links li::before{ content:""; position:absolute; inset:-3px; border-radius:19px; z-index:0; pointer-events:none; filter:blur(12px); opacity:.8; background:var(--ring); animation:spin 6s linear infinite; }
+.links a{
+  position:relative; z-index:1; display:flex; align-items:center; gap:14px; min-height:64px; padding:0 16px; border-radius:16px;
+  border:2px solid transparent; color:var(--text-on-dark); text-decoration:none; transition:transform .2s;
+  background:linear-gradient(rgba(38,46,69,.94),rgba(32,40,60,.94)) padding-box, var(--ring) border-box, var(--rim) border-box; animation:spin 6s linear infinite;
+}
+.links a:active{ transform:scale(.98); }
+.links li:nth-child(2) a, .links li:nth-child(2)::before{ animation-delay:-1.5s; }
+.links li:nth-child(3) a, .links li:nth-child(3)::before{ animation-delay:-3s; }
+.links li:nth-child(4) a, .links li:nth-child(4)::before{ animation-delay:-4.5s; }
+.tools .glow:nth-child(2) .tile, .tools .glow:nth-child(2)::before{ animation-delay:-2s; }
+.tools .glow:nth-child(3) .tile, .tools .glow:nth-child(3)::before{ animation-delay:-4s; }
+
+/* ===== hojas: compartir y QR ===== */
+.sheet{ position:fixed; inset:0; z-index:40; display:flex; align-items:flex-end; justify-content:center; visibility:hidden; transition:visibility 0s linear .4s; }
+.sheet.show{ visibility:visible; transition:visibility 0s; }
+.sheet .scrim{ position:absolute; inset:0; background:rgba(5,7,15,.6); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); opacity:0; transition:opacity .35s; }
+.sheet.show .scrim{ opacity:1; }
+.panel{
+  position:relative; width:100%; max-width:520px; border-radius:24px 24px 0 0; padding:12px 20px calc(env(safe-area-inset-bottom,0px) + 24px);
+  background:linear-gradient(180deg,#232B42,#181F31); border:1px solid rgba(255,255,255,.1); border-bottom:0;
+  box-shadow:0 -20px 60px rgba(0,0,0,.5); transform:translateY(100%); transition:transform .4s cubic-bezier(.2,.9,.2,1);
+  max-height:92dvh; overflow-y:auto;
+}
+.sheet.show .panel{ transform:none; }
+.panel .grab{ width:40px; height:4px; border-radius:4px; background:rgba(255,255,255,.25); margin:0 auto 14px; }
+.panel .phead{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:6px; }
+.panel h3{ margin:0; font-family:"Syne","Manrope",system-ui,sans-serif; font-size:20px; font-weight:700; }
+.panel .x{ width:40px; height:40px; border-radius:50%; border:0; background:rgba(255,255,255,.08); color:#fff; cursor:pointer; display:grid; place-items:center; flex:none; }
+.panel .x svg{ width:18px; height:18px; }
+.panel .lead{ margin:0 0 18px; color:var(--muted-on-dark); font-size:14px; }
+.apps{ display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px 8px; }
+.app{ display:flex; flex-direction:column; align-items:center; gap:8px; font:inherit; font-size:12px; font-weight:600; color:#DDE1EC;
+  text-decoration:none; background:none; border:0; cursor:pointer; padding:0; text-align:center; }
+.app i{ width:56px; height:56px; border-radius:18px; display:grid; place-items:center; box-shadow:0 6px 18px rgba(0,0,0,.3); transition:transform .15s; }
+.app:active i{ transform:scale(.92); }
+.app i svg{ width:28px; height:28px; }
+.app:focus-visible i, .panel .x:focus-visible{ outline:2px solid var(--blue); outline-offset:3px; }
+.qrbox{ margin:4px auto 0; width:min(260px,72vw); aspect-ratio:1; background:#fff; border-radius:22px; padding:16px; position:relative;
+  box-shadow:0 0 0 2px rgba(255,255,255,.1), 0 20px 50px rgba(90,43,200,.35); }
+.qrbox svg.code{ width:100%; height:100%; display:block; }
+.qrbox .center{ position:absolute; left:50%; top:50%; width:25%; aspect-ratio:1; transform:translate(-50%,-50%); background:#fff; border-radius:14px; display:grid; place-items:center; }
+.qrbox .center svg{ width:80%; height:auto; }
+.qrmsg{ text-align:center; color:var(--muted-on-dark); font-size:13px; margin:14px 0 0; word-break:break-all; }
+.glow .tile, .glow .btn{ z-index:1; }
+.links .ic{ width:40px; height:40px; border-radius:12px; display:grid; place-items:center; flex:none;
+  background:conic-gradient(from var(--ang) at 30% 30%, #2D8CF0, #5A2BC8, #FF5052, #2D8CF0); animation:spin 22s linear infinite; }
+.links .ic svg{ width:20px; height:20px; }
+.links b{ display:block; font-size:16px; font-weight:700; }
+.links small{ display:block; font-size:14px; color:var(--muted-on-dark); margin-top:2px; }
+.links .go{ margin-left:auto; width:18px; height:18px; color:var(--muted-on-dark); flex:none; }
+.foot{ margin-top:56px; display:flex; align-items:center; gap:12px; color:var(--muted-on-dark); font-size:14px; }
+.foot svg{ width:40px; height:auto; }
+
+/* entrada escalonada del contenido del perfil */
+.profile .rise{ opacity:0; transform:translateY(18px); transition:opacity .6s ease, transform .6s cubic-bezier(.2,.8,.2,1); }
+.profile.open .rise{ opacity:1; transform:none; }
+.profile.open .rise:nth-child(1){ transition-delay:.45s } .profile.open .rise:nth-child(2){ transition-delay:.55s }
+.profile.open .rise:nth-child(3){ transition-delay:.65s } .profile.open .rise:nth-child(4){ transition-delay:.75s }
+.profile.open .rise:nth-child(5){ transition-delay:.85s } .profile.open .rise:nth-child(6){ transition-delay:.95s }
+
+
+/* ===== luces que giran (con transform: funciona en todos los navegadores) ===== */
+@keyframes orbit{ from{ transform:translate(-50%,-50%) rotate(0deg) } to{ transform:translate(-50%,-50%) rotate(360deg) } }
+.ringed{ position:relative; z-index:1; isolation:isolate; overflow:hidden; border:0 !important; animation:none !important;
+  background:rgba(255,255,255,.14) !important; }
+.ringed::before{
+  content:""; position:absolute; left:50%; top:50%; width:170%; aspect-ratio:1; z-index:-2; pointer-events:none;
+  background:conic-gradient(transparent 0deg 140deg, #2D8CF0 210deg, #5A2BC8 270deg, #E0457F 318deg, #FF5052 350deg, transparent 360deg);
+  animation:orbit 5s linear infinite; animation-delay:var(--d,0s);
+}
+.ringed::after{ content:""; position:absolute; inset:2px; border-radius:14px; z-index:-1; pointer-events:none;
+  background:linear-gradient(#272F47,#1F2739); }
+.aura{ position:absolute; inset:-5px; border-radius:21px; overflow:hidden; filter:blur(12px); opacity:.9; z-index:0; pointer-events:none; }
+.aura i{ position:absolute; left:50%; top:50%; width:170%; aspect-ratio:1;
+  background:conic-gradient(transparent 0deg 140deg, #2D8CF0 210deg, #5A2BC8 270deg, #E0457F 318deg, #FF5052 350deg, transparent 360deg);
+  animation:orbit 5s linear infinite; animation-delay:var(--d,0s); }
+.links li::before, .glow::before{ display:none !important; }
+.links .ic{ background:var(--grad) !important; animation:none !important; }
+
+@media (prefers-reduced-motion: reduce){
+  .draw path{ animation:none; stroke-dashoffset:0; fill-opacity:1; stroke-opacity:0; }
+  .swipe .knob, .swipe span, .links a, .links li::before, .links .ic, .btn, .tile, .glow::before{ animation:none; }
+  .swipe span{ color:var(--ink); background:none; }
+  .profile, .profile.open{ transition:none; }
+  .cglow{ animation:none; }
+  .profile .rise{ transition:none; opacity:1; transform:none; }
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="mrGrad" gradientUnits="userSpaceOnUse" x1="560" y1="280" x2="860" y2="707">
+      <stop offset="0" stop-color="#2D8CF0"/><stop offset=".38" stop-color="#4A3FDB"/>
+      <stop offset=".55" stop-color="#5A2BC8"/><stop offset=".82" stop-color="#E0457F"/>
+      <stop offset="1" stop-color="#FF5052"/>
+    </linearGradient>
+    <symbol id="mrLight" viewBox="140 250 740 475">
+      <path fill="#EEF0F7" d="M155 265 L392 493 L512 352 L612 352 L398 622 L235 457 L235 707 L155 707 Z"/>
+      <path fill="#EEF0F7" d="M512 572 L587 488 L587 707 L512 707 Z"/>
+      <path fill="url(#mrGrad)" d="M512 352 L567 280 L712 280 C800 280 858 342 858 418 C858 492 810 548 750 556 L866 707 L765 707 L600 488 L712 488 C752 488 780 458 780 420 C780 382 752 352 712 352 Z"/>
+    </symbol>
+  </defs>
+</svg>
+
+<main class="stage" id="stage">
+  <canvas id="aurora" aria-hidden="true"></canvas>
+  <div class="halo" id="halo" aria-hidden="true"></div>
+  <div class="card" id="card" tabindex="0" role="button" aria-label="Tarjeta de Manuel Rivas. Desliza o pulsa Enter para entrar.">
+    <div class="cglow" aria-hidden="true"></div>
+    <section class="face front">
+      <div class="foil" aria-hidden="true"></div>
+      <div class="logo">
+        <svg class="draw" viewBox="140 250 740 475" role="img" aria-label="Logo MR">
+          <path class="p-m" pathLength="1" fill="#1E2638" d="M155 265 L392 493 L512 352 L612 352 L398 622 L235 457 L235 707 L155 707 Z"/>
+          <path class="p-s" pathLength="1" fill="#1E2638" d="M512 572 L587 488 L587 707 L512 707 Z"/>
+          <path class="p-r" pathLength="1" fill="url(#mrGrad)" d="M512 352 L567 280 L712 280 C800 280 858 342 858 418 C858 492 810 548 750 556 L866 707 L765 707 L600 488 L712 488 C752 488 780 458 780 420 C780 382 752 352 712 352 Z"/>
+        </svg>
+      </div>
+      <div class="who">
+        <p class="name">Manuel Rivas</p>
+        <p class="line">Diseño UX/UI y contenido con IA</p>
+        <div class="swipe" id="swipe" aria-hidden="true">
+          <div class="knob" id="knob"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></div>
+          <span>Desliza para entrar</span>
+        </div>
+      </div>
+      <div class="glare" aria-hidden="true"></div>
+    </section>
+  </div>
+  <p class="hint" id="hint">Desliza la tarjeta con el dedo para entrar</p>
+</main>
+
+<!-- ============ PÁGINA QUE SE ABRE ============ -->
+<div class="profile" id="profile" aria-hidden="true">
+  <canvas id="void" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <div class="topbar">
+      <svg class="mark" aria-hidden="true"><use href="#mrLight"/></svg>
+      <button class="back-btn" id="backBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+        Tarjeta
+      </button>
+    </div>
+
+    <header class="hero">
+      <h1 class="rise">Manuel Rivas</h1>
+      <p class="rise">Diseño interfaces, páginas web y contenido con IA para marcas que quieren verse y funcionar mejor.</p>
+      <div class="cta rise">
+        <div class="glow">
+        <a class="btn btn-primary" href="https://wa.me/4915561638412" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.15l-.3-.18-3 .78.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.25-.12-1.47-.72-1.7-.8-.23-.09-.4-.13-.56.12-.17.25-.64.8-.79.97-.14.16-.29.18-.54.06-.25-.12-1.05-.39-2-1.23-.74-.66-1.24-1.47-1.38-1.72-.15-.25-.02-.38.1-.5.12-.12.25-.29.38-.44.12-.14.16-.25.25-.41.08-.17.04-.31-.02-.44-.07-.12-.56-1.35-.77-1.85-.2-.48-.4-.42-.56-.43h-.48a.92.92 0 0 0-.66.31c-.23.25-.87.85-.87 2.07 0 1.22.89 2.4 1.01 2.57.13.16 1.75 2.67 4.23 3.74.59.26 1.05.41 1.41.52.6.19 1.13.16 1.56.1.47-.07 1.47-.6 1.68-1.18.2-.58.2-1.08.14-1.18-.06-.1-.23-.17-.48-.29z"/></svg>
+          Escríbeme por WhatsApp
+        </a>
+        </div>
+        <div class="tools">
+          <div class="glow"><a class="tile" id="saveContact" download="Manuel-Rivas.vcf">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="8" r="4"/><path d="M3 20c.8-3.6 3.6-5.5 7-5.5 1.3 0 2.5.3 3.5.8M19 14v6M16 17h6"/></svg>
+            Guardar contacto</a></div>
+          <div class="glow"><button class="tile" id="shareBtn" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 8l5-5 5 5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>
+            Compartir</button></div>
+          <div class="glow"><button class="tile" id="qrBtn" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 17h4v4h-4"/></svg>
+            Código QR</button></div>
+          <div class="glow"><a class="tile" href="https://www.google.com/maps/dir/?api=1&amp;destination=Hochschulstra%C3%9Fe%2028%2C%2001069%20Dresden" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>
+            Cómo llegar</a></div>
+        </div>
+      </div>
+    </header>
+
+    <section class="section rise">
+      <h2>Qué hago</h2>
+      <p class="sub">Diseño y tecnología al servicio de tu marca.</p>
+      <ul class="services">
+        <li><b>Diseño UX/UI</b><span>Interfaces claras para apps y webs, del boceto al prototipo que se puede probar.</span></li>
+        <li><b>Páginas web</b><span>Sitios rápidos y a medida que convierten visitas en clientes.</span></li>
+        <li><b>Contenido con IA</b><span>Imágenes, vídeos y textos para redes, creados y afinados con inteligencia artificial.</span></li>
+        <li><b>Marketing digital</b><span>Estrategia en redes para atraer a tu público y mantenerlo cerca.</span></li>
+      </ul>
+    </section>
+
+    <section class="section rise">
+      <h2>Encuéntrame</h2>
+      <p class="sub">Elige el canal que prefieras.</p>
+      <ul class="links">
+        <li><a href="https://instagram.com/manue_rivas" target="_blank" rel="noopener">
+          <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="#fff" stroke="none"/></svg></span>
+          <span><b>Instagram</b><small>@manue_rivas</small></span>
+          <svg class="go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></a></li>
+        <li><a href="https://manuel-rivas-ecosistema.pages.dev" target="_blank" rel="noopener">
+          <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/></svg></span>
+          <span><b>Sitio web</b><small>Proyectos y servicios</small></span>
+          <svg class="go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></a></li>
+        <li><a href="https://www.linkedin.com/in/manuel-rivas-09913736a" target="_blank" rel="noopener">
+          <span class="ic"><svg viewBox="0 0 24 24" fill="#fff"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9.5h4V21H3zM9.5 9.5h3.8v1.6h.06c.53-1 1.83-2.06 3.77-2.06 4.03 0 4.77 2.65 4.77 6.1V21h-4v-5.2c0-1.24-.02-2.84-1.73-2.84-1.73 0-2 1.35-2 2.75V21h-4z"/></svg></span>
+          <span><b>LinkedIn</b><small>Manuel Rivas</small></span>
+          <svg class="go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></a></li>
+        <li><a href="https://wa.me/4915561638412" target="_blank" rel="noopener">
+          <span class="ic"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.15l-.3-.18-3 .78.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2z"/></svg></span>
+          <span><b>WhatsApp</b><small>+49 155 6163 8412</small></span>
+          <svg class="go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></a></li>
+      </ul>
+    </section>
+
+    <footer class="foot rise">
+      <svg aria-hidden="true"><use href="#mrLight"/></svg>
+      <span>Manuel Rivas, diseño y contenido con IA desde Alemania</span>
+    </footer>
+  </div>
+</div>
+
+<div class="sheet" id="shareSheet" role="dialog" aria-modal="true" aria-labelledby="shareTitle" aria-hidden="true">
+  <div class="scrim" data-close></div>
+  <div class="panel">
+    <div class="grab"></div>
+    <div class="phead"><h3 id="shareTitle">Compartir tarjeta</h3><button class="x" type="button" data-close aria-label="Cerrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <p class="lead">Elige dónde quieres enviarla.</p>
+    <div class="apps">
+      <a class="app" data-share="whatsapp" target="_blank" rel="noopener"><i style="background:#25D366"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm4.5 12.1c-.25-.12-1.47-.72-1.7-.8-.23-.09-.4-.13-.56.12-.17.25-.64.8-.79.97-.14.16-.29.18-.54.06-.25-.12-1.05-.39-2-1.23-.74-.66-1.24-1.47-1.38-1.72-.15-.25-.02-.38.1-.5.12-.12.25-.29.38-.44.12-.14.16-.25.25-.41.08-.17.04-.31-.02-.44-.07-.12-.56-1.35-.77-1.85-.2-.48-.4-.42-.56-.43h-.48a.92.92 0 0 0-.66.31c-.23.25-.87.85-.87 2.07 0 1.22.89 2.4 1.01 2.57.13.16 1.75 2.67 4.23 3.74 2.07.9 2.49.72 2.94.68.47-.05 1.47-.6 1.68-1.18.2-.58.2-1.08.14-1.18-.06-.1-.23-.17-.48-.29z"/></svg></i>WhatsApp</a>
+      <button class="app" type="button" data-share="instagram"><i style="background:radial-gradient(circle at 30% 110%,#FFD676 0%,#F9563C 35%,#D6249F 60%,#285AEB 100%)"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="#fff" stroke="none"/></svg></i>Instagram</button>
+      <a class="app" data-share="telegram" target="_blank" rel="noopener"><i style="background:#27A7E7"><svg viewBox="0 0 24 24" fill="#fff"><path d="M21.5 4.3 18.3 19.6c-.24 1.07-.87 1.33-1.77.83l-4.9-3.6-2.36 2.27c-.26.26-.48.48-.98.48l.35-4.98 9.07-8.2c.4-.35-.08-.55-.61-.2L5.9 13.26 1.07 11.75c-1.05-.33-1.07-1.05.22-1.55L20.2 2.9c.88-.33 1.64.2 1.3 1.4z"/></svg></i>Telegram</a>
+      <a class="app" data-share="email"><i style="background:#5A2BC8"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3.5 6.5 12 13l8.5-6.5"/></svg></i>Correo</a>
+      <a class="app" data-share="linkedin" target="_blank" rel="noopener"><i style="background:#0A66C2"><svg viewBox="0 0 24 24" fill="#fff"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9.5h4V21H3zM9.5 9.5h3.8v1.6h.06c.53-1 1.83-2.06 3.77-2.06 4.03 0 4.77 2.65 4.77 6.1V21h-4v-5.2c0-1.24-.02-2.84-1.73-2.84-1.73 0-2 1.35-2 2.75V21h-4z"/></svg></i>LinkedIn</a>
+      <a class="app" data-share="facebook" target="_blank" rel="noopener"><i style="background:#1877F2"><svg viewBox="0 0 24 24" fill="#fff"><path d="M13.5 21v-7.5h2.6l.4-3h-3V8.6c0-.87.25-1.46 1.5-1.46h1.6V4.46A21 21 0 0 0 14.3 4.3c-2.3 0-3.8 1.4-3.8 3.9v2.3H8v3h2.5V21z"/></svg></i>Facebook</a>
+      <a class="app" data-share="sms"><i style="background:#34C759"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H9l-5 4V6a1 1 0 0 1 1-1z"/></svg></i>SMS</a>
+      <button class="app" type="button" data-share="copy"><i style="background:#2F3852"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4 4 0 0 0 5.66 0l3-3a4 4 0 0 0-5.66-5.66l-1 1"/><path d="M14 10a4 4 0 0 0-5.66 0l-3 3a4 4 0 0 0 5.66 5.66l1-1"/></svg></i>Copiar enlace</button>
+      <button class="app" type="button" data-share="more" id="moreShare" hidden><i style="background:linear-gradient(135deg,#2D8CF0,#5A2BC8,#FF5052)"><svg viewBox="0 0 24 24" fill="#fff"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></i>Más apps</button>
+    </div>
+  </div>
+</div>
+
+<div class="sheet" id="qrSheet" role="dialog" aria-modal="true" aria-labelledby="qrTitle" aria-hidden="true">
+  <div class="scrim" data-close></div>
+  <div class="panel">
+    <div class="grab"></div>
+    <div class="phead"><h3 id="qrTitle">Escanea mi tarjeta</h3><button class="x" type="button" data-close aria-label="Cerrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <p class="lead">Apunta la cámara del otro teléfono a este código.</p>
+    <div class="qrbox"><div id="qrCode"></div><div class="center"><svg aria-hidden="true" viewBox="140 250 740 475"><path fill="#1E2638" d="M155 265 L392 493 L512 352 L612 352 L398 622 L235 457 L235 707 L155 707 Z"/><path fill="#1E2638" d="M512 572 L587 488 L587 707 L512 707 Z"/><path fill="url(#mrGrad)" d="M512 352 L567 280 L712 280 C800 280 858 342 858 418 C858 492 810 548 750 556 L866 707 L765 707 L600 488 L712 488 C752 488 780 458 780 420 C780 382 752 352 712 352 Z"/></svg></div></div>
+    <p class="qrmsg" id="qrMsg"></p>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+(() => {
+  const card = document.getElementById('card');
+  const hint = document.getElementById('hint');
+  const halo = document.getElementById('halo');
+  const profile = document.getElementById('profile');
+  const swipeEl = document.getElementById('swipe');
+  const knob = document.getElementById('knob');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const touch = matchMedia('(pointer: coarse)').matches;
+
+  // vCard
+  const vcard = ['BEGIN:VCARD','VERSION:3.0','N:Rivas;Manuel;;;','FN:Manuel Rivas',
+    'TITLE:Diseño UX/UI y contenido con IA','TEL;TYPE=CELL:+4915561638412',
+    'URL:https://manuel-rivas-ecosistema.pages.dev',
+    'X-SOCIALPROFILE;TYPE=instagram:https://instagram.com/manue_rivas',
+    'X-SOCIALPROFILE;TYPE=linkedin:https://www.linkedin.com/in/manuel-rivas-09913736a',
+    'END:VCARD'].join('\r\n');
+  document.getElementById('saveContact').href = 'data:text/vcard;charset=utf-8,' + encodeURIComponent(vcard);
+
+  // luces giratorias: marca los botones y añade el resplandor sincronizado
+  document.querySelectorAll('.btn-primary, .tile, .links a').forEach(el => el.classList.add('ringed'));
+  document.querySelectorAll('.glow, .links li').forEach((w, i) => {
+    w.style.setProperty('--d', (-i * 1.25) + 's');
+    const a = document.createElement('span'); a.className = 'aura'; a.setAttribute('aria-hidden','true'); a.innerHTML = '<i></i>';
+    w.prepend(a);
+  });
+
+  // compartir
+  const toast = document.getElementById('toast');
+  function say(msg){ toast.textContent = msg; toast.classList.add('show'); clearTimeout(say.t); say.t = setTimeout(() => toast.classList.remove('show'), 2200); }
+  const cardUrl = () => location.href.split('#')[0];
+  const shareText = 'Te comparto mi tarjeta: Manuel Rivas, diseño UX/UI, páginas web y contenido con IA.';
+  let lastFocus = null;
+  function openSheet(id){
+    const sh = document.getElementById(id); lastFocus = document.activeElement;
+    sh.classList.add('show'); sh.setAttribute('aria-hidden','false');
+    setTimeout(() => sh.querySelector('.x').focus({ preventScroll:true }), 50);
+  }
+  function closeSheets(){
+    document.querySelectorAll('.sheet.show').forEach(sh => { sh.classList.remove('show'); sh.setAttribute('aria-hidden','true'); });
+    if (lastFocus) lastFocus.focus({ preventScroll:true });
+  }
+  document.querySelectorAll('[data-close]').forEach(el => el.addEventListener('click', closeSheets));
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && document.querySelector('.sheet.show')){ e.stopImmediatePropagation(); closeSheets(); } }, true);
+
+  async function copyLink(msg){
+    const url = cardUrl();
+    try { await navigator.clipboard.writeText(url); say(msg || 'Enlace copiado'); }
+    catch(_){ window.prompt('Copia este enlace:', url); }
+  }
+  function prepareShareLinks(){
+    const u = encodeURIComponent(cardUrl()), t = encodeURIComponent(shareText), both = encodeURIComponent(shareText + ' ' + cardUrl());
+    const set = (k, href) => document.querySelector(`[data-share="${k}"]`).href = href;
+    set('whatsapp', 'https://wa.me/?text=' + both);
+    set('telegram', 'https://t.me/share/url?url=' + u + '&text=' + t);
+    set('email', 'mailto:?subject=' + encodeURIComponent('Tarjeta de Manuel Rivas') + '&body=' + both);
+    set('linkedin', 'https://www.linkedin.com/sharing/share-offsite/?url=' + u);
+    set('facebook', 'https://www.facebook.com/sharer/sharer.php?u=' + u);
+    set('sms', 'sms:?&body=' + both);
+  }
+  const more = document.getElementById('moreShare');
+  if (navigator.share) more.hidden = false;
+  document.getElementById('shareBtn').addEventListener('click', () => { prepareShareLinks(); openSheet('shareSheet'); });
+  document.querySelector('[data-share="copy"]').addEventListener('click', () => copyLink());
+  document.querySelector('[data-share="instagram"]').addEventListener('click', async () => {
+    // Instagram no permite compartir enlaces desde la web: se copia el enlace y se abren los mensajes
+    await copyLink('Enlace copiado: pégalo en tu chat de Instagram');
+    setTimeout(() => window.open('https://www.instagram.com/direct/inbox/', '_blank', 'noopener'), 600);
+  });
+  more.addEventListener('click', async () => {
+    try { await navigator.share({ title:'Manuel Rivas', text:shareText, url:cardUrl() }); } catch(_){}
+  });
+
+  // código QR
+  let qrDone = false;
+  function buildQR(){
+    const box = document.getElementById('qrCode'), msg = document.getElementById('qrMsg');
+    msg.textContent = cardUrl().replace(/^https?:\/\//, '');
+    if (qrDone) return;
+    if (typeof qrcode !== 'function'){ box.innerHTML = ''; msg.textContent = 'No se pudo generar el código QR. Comprueba tu conexión e inténtalo de nuevo.'; return; }
+    const q = qrcode(0, 'H'); q.addData(cardUrl()); q.make();
+    const n = q.getModuleCount(), c = n / 2, hole = n * .15;
+    let d = '';
+    for (let r = 0; r < n; r++) for (let k = 0; k < n; k++){
+      if (!q.isDark(r, k)) continue;
+      const finder = (r < 7 && k < 7) || (r < 7 && k >= n - 7) || (r >= n - 7 && k < 7);
+      if (!finder && Math.abs(r + .5 - c) < hole && Math.abs(k + .5 - c) < hole) continue;  // hueco para el logo
+      d += finder ? `M${k},${r}h1v1h-1z` : `M${k + .5},${r + .08}a.42.42 0 1 1 0 .84a.42.42 0 1 1 0-.84z`;
+    }
+    box.innerHTML = `<svg class="code" viewBox="0 0 ${n} ${n}" role="img" aria-label="Código QR de la tarjeta" shape-rendering="geometricPrecision"><path d="${d}" fill="#1E2638"/></svg>`;
+    qrDone = true;
+  }
+  document.getElementById('qrBtn').addEventListener('click', () => { buildQR(); openSheet('qrSheet'); });
+
+
+  hint.textContent = touch ? 'Desliza hacia la derecha para entrar' : 'Arrastra el botón o haz clic para entrar';
+
+  // estado
+  let energy = 0, energyS = 0;
+  let x = 0, target = 0, vel = 0, op = 1, targetOp = 1;
+  let tiltX = 0, tiltY = 0, tTiltX = 0, tTiltY = 0;
+  let dragging = false, moved = false, startX = 0, startY = 0, lastX = 0, lastT = 0, flingV = 0;
+  let mode = 'card', knobMax = 0, suppressClick = false, interacted = false, isOpen = false;
+  const W = () => card.offsetWidth;
+
+  // ---- abrir / cerrar la página ----
+  function openProfile(dir = 1, fromHistory = false){
+    if (isOpen) return; isOpen = true; interacted = true;
+    const r = knob.getBoundingClientRect();            // la página nace desde el botón deslizante
+    knob.style.transition = 'transform .25s ease'; knob.style.transform = `translateX(${knobMax || swipeEl.clientWidth - knob.offsetWidth - knob.offsetLeft * 2}px)`;
+    knob.classList.add('held');
+    profile.style.setProperty('--cx', (r.left + r.width / 2) + 'px');
+    profile.style.setProperty('--cy', (r.top + r.height / 2) + 'px');
+    setTimeout(() => {
+      profile.classList.add('open'); profile.setAttribute('aria-hidden', 'false'); profile.scrollTop = 0;
+      if (navigator.vibrate && touch) navigator.vibrate(10);
+    }, reduce ? 0 : 160);
+    if (!fromHistory) try { history.pushState({ mr: 'perfil' }, '', '#perfil'); } catch(_){}
+  }
+  function closeProfile(fromHistory = false){
+    if (!isOpen) return; isOpen = false;
+    profile.classList.remove('open'); profile.setAttribute('aria-hidden', 'true');
+    target = 0; targetOp = 1; resetKnob();
+    setTimeout(() => card.focus({ preventScroll: true }), 400);
+    if (!fromHistory && location.hash === '#perfil') try { history.back(); } catch(_){}
+  }
+  document.getElementById('backBtn').addEventListener('click', () => closeProfile());
+  window.addEventListener('popstate', () => { location.hash === '#perfil' ? openProfile(1, true) : closeProfile(true); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && isOpen) closeProfile(); });
+
+  // ---- gesto ----
+  function dragStart(px, py, t){
+    if (isOpen) return;
+    dragging = true; moved = false; startX = lastX = px; startY = py; lastT = performance.now(); flingV = 0;
+    mode = 'slider';
+    knobMax = swipeEl.clientWidth - knob.offsetWidth - knob.offsetLeft * 2; knob.classList.add('held'); knob.style.transition = 'none';
+    askMotionPermission();
+  }
+  function dragMove(px, py){
+    if (!dragging) return false;
+    const dx = px - startX, dy = py - startY;
+    if (!moved){
+      if (Math.abs(dx) > 6 && Math.abs(dx) > Math.abs(dy)) { moved = true; interacted = true; }
+      else if (Math.abs(dy) > 10) { dragging = false; resetKnob(); return false; }
+      else return false;
+    }
+    const now = performance.now(), dt = Math.max(1, now - lastT);
+    flingV = (px - lastX) / dt; lastX = px; lastT = now;
+    if (mode === 'slider'){
+      const k = Math.max(0, Math.min(knobMax, dx));
+      knob.style.transform = `translateX(${k}px)`;
+      energy = k / knobMax;
+      swipeEl.style.setProperty('--kx', k + 'px'); swipeEl.style.setProperty('--fo', 1);
+      swipeEl.querySelector('span').style.opacity = Math.max(0, 1 - (k / knobMax) * 1.6);
+    }
+    return true;
+  }
+  function dragEnd(){
+    if (!dragging) return; dragging = false;
+    if (!moved){ resetKnob(); return; }
+    suppressClick = true;
+    if (mode === 'slider'){
+      const progress = (lastX - startX) / knobMax;
+      if (progress > .7 || (progress > .3 && flingV > .5)) openProfile(1); else resetKnob();
+    } else {
+      const dir = Math.sign(Math.abs(flingV) > .4 ? flingV : x) || 1;
+      if (Math.abs(x) > W() * .32 || Math.abs(flingV) > .45) openProfile(dir);
+      else { target = 0; vel = flingV * 6; }
+    }
+  }
+  function resetKnob(){
+    knob.style.transition = 'transform .45s cubic-bezier(.3,1.3,.5,1)'; knob.style.transform = 'translateX(0)';
+    energy = 0;
+    swipeEl.style.setProperty('--kx', '0px'); swipeEl.style.setProperty('--fo', 0); swipeEl.querySelector('span').style.opacity = '';
+    setTimeout(() => { knob.classList.remove('held'); knob.style.transition = ''; knob.style.transform = ''; }, 460);
+  }
+
+  card.addEventListener('touchstart', e => { if (e.touches.length > 1) return; const t = e.touches[0]; dragStart(t.clientX, t.clientY, e.target); }, { passive: true });
+  card.addEventListener('touchmove', e => { const t = e.touches[0]; if (dragMove(t.clientX, t.clientY) && e.cancelable) e.preventDefault(); }, { passive: false });
+  card.addEventListener('touchend', dragEnd);
+  card.addEventListener('touchcancel', dragEnd);
+
+  card.addEventListener('pointerdown', e => { if (e.pointerType !== 'mouse' || e.button !== 0) return; dragStart(e.clientX, e.clientY, e.target); });
+  window.addEventListener('pointermove', e => {
+    if (e.pointerType !== 'mouse') return;
+    if (!dragging){ tTiltY = (e.clientX / innerWidth - .5) * 18; tTiltX = -(e.clientY / innerHeight - .5) * 14; return; }
+    dragMove(e.clientX, e.clientY);
+  });
+  window.addEventListener('pointerup', e => { if (e.pointerType === 'mouse') dragEnd(); });
+
+  // en el teléfono solo se entra deslizando; en ordenador también con clic
+  card.addEventListener('click', () => { if (suppressClick){ suppressClick = false; return; } if (!touch) openProfile(1); });
+  card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowRight'){ e.preventDefault(); openProfile(1); } });
+
+  // ---- giroscopio ----
+  let motionAsked = false;
+  function askMotionPermission(){
+    if (motionAsked) return; motionAsked = true;
+    const D = window.DeviceOrientationEvent;
+    if (D && typeof D.requestPermission === 'function') D.requestPermission().then(s => { if (s === 'granted') listenMotion(); }).catch(()=>{});
+  }
+  function listenMotion(){
+    window.addEventListener('deviceorientation', e => {
+      if (e.gamma == null) return;
+      tTiltY = Math.max(-14, Math.min(14, e.gamma * .5));
+      tTiltX = Math.max(-12, Math.min(12, -(e.beta - 45) * .35));
+    });
+  }
+  if (window.DeviceOrientationEvent && typeof DeviceOrientationEvent.requestPermission !== 'function') listenMotion();
+
+  // ---- empujón que enseña el gesto ----
+
+
+  // ---- bucle ----
+  function tick(){
+    if (!dragging){
+      const k = reduce ? .3 : .07, damp = reduce ? .5 : .76;
+      vel += (target - x) * k; vel *= damp; x += vel;
+      if (Math.abs(target - x) < .05 && Math.abs(vel) < .05) x = target;
+    }
+    op += (targetOp - op) * (targetOp === 0 ? .14 : .1);
+    tiltX += (tTiltX - tiltX) * .08; tiltY += (tTiltY - tiltY) * .08;
+    const w = W() || 1, p = x / w;
+    card.style.setProperty('--x', x + 'px');
+    card.style.setProperty('--ry', (p * 28) + 'deg');
+    card.style.setProperty('--rz', (p * 7) + 'deg');
+    card.style.setProperty('--tx', tiltX + 'deg');
+    card.style.setProperty('--ty', tiltY + 'deg');
+    card.style.setProperty('--op', op.toFixed(3));
+    card.style.setProperty('--gx', (50 + tiltY * 3 - p * 60) + '%');
+    card.style.setProperty('--gy', (30 - tiltX * 3) + '%');
+    card.style.setProperty('--go', (.45 + Math.min(1, Math.abs(p)) * .45).toFixed(2));
+    card.style.setProperty('--fx', (50 + tiltY * 4 + p * 60) + '%');
+    halo.style.setProperty('--hx', (tiltY * 3 + x * .15).toFixed(1));
+    halo.style.setProperty('--hy', (-tiltX * 3).toFixed(1));
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+
+  // ---- aurora líquida detrás de la tarjeta ----
+  const av = document.getElementById('aurora'), ac = av.getContext('2d');
+  const SCALE = .45;                       // se dibuja a baja resolución: es difusa por naturaleza
+  let aw = 0, ah = 0;
+  function asize(){ aw = Math.ceil(innerWidth * SCALE); ah = Math.ceil(innerHeight * SCALE); av.width = aw; av.height = ah; }
+  asize(); addEventListener('resize', asize);
+  const blobs = [
+    { c:[45,140,240],  r:.46, ax:.34, ay:.30, sx:.21, sy:.16, p:0.0, a:.95 },
+    { c:[90,43,200],   r:.52, ax:.28, ay:.34, sx:.15, sy:.20, p:1.7, a:.95 },
+    { c:[255,80,82],   r:.42, ax:.34, ay:.30, sx:.18, sy:.13, p:3.1, a:.9  },
+    { c:[224,69,127],  r:.34, ax:.30, ay:.36, sx:.25, sy:.18, p:4.4, a:.7  },
+    { c:[30,110,230],  r:.30, ax:.36, ay:.26, sx:.13, sy:.22, p:5.6, a:.6  }
+  ];
+  function drawAurora(now){
+    const t = now / 1000 * (reduce ? 0 : 1);
+    energyS += (energy - energyS) * .08;
+    const boost = 1 + energyS * .6, speed = 1 + energyS * 2.5;
+    ac.globalCompositeOperation = 'source-over';
+    ac.fillStyle = '#070A15'; ac.fillRect(0, 0, aw, ah);
+    ac.globalCompositeOperation = 'screen';
+    const m = Math.max(aw, ah), px = tiltY * .012 * aw, py = -tiltX * .012 * ah;
+    blobs.forEach((b, i) => {
+      const tt = t * speed;
+      const cx = aw * (.5 + b.ax * Math.sin(tt * b.sx * 6.283 / 6 + b.p)) + px * (1 + i * .3);
+      const cy = ah * (.48 + b.ay * Math.cos(tt * b.sy * 6.283 / 6 + b.p * 1.3)) + py * (1 + i * .3);
+      const sx = 1 + .28 * Math.sin(tt * .21 + b.p), sy = 1 + .28 * Math.cos(tt * .17 + b.p * 2); // deformación líquida
+      const R = m * b.r;
+      ac.save(); ac.translate(cx, cy); ac.rotate(Math.sin(tt * .05 + b.p) * .8); ac.scale(sx, sy);
+      const g = ac.createRadialGradient(0, 0, 0, 0, 0, R);
+      const [r, gg, bb] = b.c, al = Math.min(1, b.a * .8 * boost);
+      g.addColorStop(0, `rgba(${r},${gg},${bb},${al})`);
+      g.addColorStop(.35, `rgba(${r},${gg},${bb},${al * .5})`);
+      g.addColorStop(.7, `rgba(${r},${gg},${bb},${al * .12})`);
+      g.addColorStop(1, `rgba(${r},${gg},${bb},0)`);
+      ac.fillStyle = g; ac.fillRect(-R, -R, R * 2, R * 2); ac.restore();
+    });
+  }
+  let auroraOn = true;
+  function auroraLoop(now){ if (!isOpen) drawAurora(now); if (!reduce) requestAnimationFrame(auroraLoop); }
+  requestAnimationFrame(auroraLoop);
+
+  // ---- el vacío: líneas curvas en 3D con los colores del logo ----
+  const cv = document.getElementById('void'), cx2 = cv.getContext('2d');
+  let vw = 0, vh = 0, dpr = 1, running = false, t0 = performance.now();
+  function size(){ dpr = Math.min(2, devicePixelRatio || 1); vw = innerWidth; vh = innerHeight; cv.width = vw * dpr; cv.height = vh * dpr; cx2.setTransform(dpr,0,0,dpr,0,0); }
+  size(); addEventListener('resize', size);
+  const DEPTH = 26, NEAR = .9, FAR = 16, XS = 64, XR = 11;
+  const wave = (x, z, t) => .55 * Math.sin(x * .42 + t * .55 + z * .33) + .32 * Math.sin(x * .95 - t * .38 + z * .7) + .18 * Math.sin(z * 1.3 + t);
+  function drawVoid(now){
+    const t = (now - t0) / 1000, scroll = profile.scrollTop || 0;
+    cx2.clearRect(0, 0, vw, vh);
+    const fov = Math.min(vw, vh) * .9;
+    const hx = vw / 2 + tiltY * 6, hy = vh * .42 - Math.min(scroll * .08, 60) + tiltX * 5;
+    const g = cx2.createLinearGradient(0, 0, vw, 0);
+    g.addColorStop(0, '#2D8CF0'); g.addColorStop(.45, '#5A2BC8'); g.addColorStop(.75, '#E0457F'); g.addColorStop(1, '#FF5052');
+    cx2.strokeStyle = g; cx2.globalCompositeOperation = 'lighter'; cx2.lineCap = 'round';
+    const travel = reduce ? 0 : t * .9, span = FAR - NEAR, step = span / DEPTH;
+    for (const side of [1, -1]){                 // suelo y techo: el vacío queda en medio
+      const base = side > 0 ? 2.3 : -2.6;
+      // líneas transversales (curvas que avanzan hacia ti)
+      for (let i = 0; i < DEPTH; i++){
+        const z = NEAR + ((i * step - travel) % span + span) % span;
+        const fade = Math.min(1, (z - NEAR) / 1.2) * Math.pow(1 - z / FAR, 1.6);
+        cx2.globalAlpha = Math.min(1, fade * 1.6) * (side > 0 ? 1 : .7);
+        cx2.lineWidth = Math.max(.7, 3 / z);
+        cx2.beginPath();
+        for (let k = 0; k <= XS; k++){
+          const x = -XR + (2 * XR * k) / XS, y = base + side * wave(x, z, t) * .9;
+          const sx = hx + x / z * fov * .5, sy = hy + y / z * fov * .5;
+          k ? cx2.lineTo(sx, sy) : cx2.moveTo(sx, sy);
+        }
+        cx2.stroke();
+      }
+      // líneas longitudinales (dan profundidad a la malla)
+      for (let x = -XR; x <= XR; x += 1.4){
+        cx2.globalAlpha = (side > 0 ? .42 : .26) * (1 - Math.abs(x) / XR * .6);
+        cx2.lineWidth = .7; cx2.beginPath();
+        for (let j = 0; j <= 40; j++){
+          const z = NEAR + .3 + (FAR - NEAR) * Math.pow(j / 40, 1.5), y = base + side * wave(x, z, t) * .9;
+          const sx = hx + x / z * fov * .5, sy = hy + y / z * fov * .5;
+          j ? cx2.lineTo(sx, sy) : cx2.moveTo(sx, sy);
+        }
+        cx2.stroke();
+      }
+    }
+    // núcleo del vacío: un halo tenue en el punto de fuga
+    cx2.globalCompositeOperation = 'source-over'; cx2.globalAlpha = 1;
+    const r = cx2.createRadialGradient(hx, hy, 0, hx, hy, fov * .35);
+    r.addColorStop(0, 'rgba(90,43,200,.38)'); r.addColorStop(1, 'rgba(90,43,200,0)');
+    cx2.fillStyle = r; cx2.fillRect(0, 0, vw, vh);
+  }
+  function voidLoop(now){ if (!running) return; drawVoid(now); requestAnimationFrame(voidLoop); }
+  new MutationObserver(() => {
+    const on = profile.classList.contains('open');
+    if (on && !running){ running = true; if (reduce) drawVoid(performance.now()); else requestAnimationFrame(voidLoop); }
+    if (!on) running = false;
+  }).observe(profile, { attributes: true, attributeFilter: ['class'] });
+
+  if (location.hash === '#perfil'){ reduceOpen(); }
+  function reduceOpen(){ isOpen = false; openProfile(1, true); }
+})();
+</script>
+</body>
+</html>
